@@ -9,7 +9,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import type { CreatorPortalUser } from '@/lib/types/database'
-import { SocialLoginButtons } from '@/components/auth/social-login-buttons'
+import { MagicLinkLogin } from '@/components/auth/magic-link-login'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -123,14 +123,14 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Social Login */}
-          <div className="mt-4 space-y-3">
+          {/* Magic Link Login */}
+          <div className="mt-4">
             <div className="relative flex items-center gap-3 my-4">
               <div className="flex-1 h-px bg-border/40" />
-              <span className="text-xs text-muted-foreground uppercase tracking-widest">or continue with</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-widest">or</span>
               <div className="flex-1 h-px bg-border/40" />
             </div>
-            <SocialLoginButtons />
+            <MagicLinkLogin />
           </div>
 
           {/* Footer */}
