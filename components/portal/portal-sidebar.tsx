@@ -20,6 +20,7 @@ import {
   X,
   FolderOpen,
 } from "lucide-react"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { useState, useEffect } from "react"
 import type { Client } from "@/lib/types/database"
 
@@ -174,6 +175,11 @@ export function PortalSidebar({ client }: PortalSidebarProps) {
               ))}
             </ul>
           </nav>
+
+          {/* Language Switcher */}
+          <div className="border-t border-border/30 p-4 shrink-0">
+            <LanguageSwitcher />
+          </div>
 
           {/* User Section */}
           <div className="border-t border-border/30 p-4 shrink-0">

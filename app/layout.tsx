@@ -5,6 +5,7 @@ import '@fontsource/space-grotesk/400.css'
 import '@fontsource/space-grotesk/500.css'
 import '@fontsource/space-grotesk/600.css'
 import '@fontsource/space-grotesk/700.css'
+import { LanguageProvider } from '@/components/language-provider'
 import './globals.css'
 
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -33,7 +34,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark bg-background">
       <body className="font-sans antialiased">
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

@@ -1,14 +1,15 @@
 "use client"
 
 import { useEffect } from "react"
-import { useTolgee } from "@/lib/tolgee-client"
+import { tolgee } from "@/lib/tolgee"
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const { init } = useTolgee()
-
   useEffect(() => {
-    init()
-  }, [init])
+    tolgee.run()
+    return () => {
+      tolgee.stop()
+    }
+  }, [])
 
   return <>{children}</>
 }
