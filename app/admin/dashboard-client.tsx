@@ -1,0 +1,303 @@
+"use client"
+
+import Link from "next/link"
+import { format } from "date-fns"
+import {
+  Users,
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  ArrowRight,
+  Clock,
+  ListTodo,
+  BarChart3,
+} from "lucide-react"
+import type { Client, ClientTask, Transaction } from "@/lib/types/database"
+
+interface AdminDashboardClientProps {
+  creators: Client[]
+  tasks: (ClientTask & { creator_name: string })[]
+  transactions: (Transaction & { creator_name: string })[]
+  stats: {
+    totalCreators: number
+    totalRevenue: number
+    totalSubscribers: number
+    pendingTasks: number
+    avgRevenueChange: number
+  }
+  isDemo?: boolean
+}
+
+export function AdminDashboardClient({ 
+  creators, 
+  tasks, 
+  transactions,
+  stats,
+  isDemo = false,
+}: AdminDashboardClientProps) {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount)
+  }
+
+  const getTaskPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'pill-danger'
+      case 'medium': return 'pill-warning'
+      default: return 'pill-purple'
+    }
+  }
+
+  return (
+    <div className="space-y-6 pt-12 lg:pt-0">
+      {/* Demo Mode Banner */}
+      {isDemo && (
+        <div className="p-3 rounded-lg bg-gold/20 border border-gold/30 text-center">
+          <p className="text-sm text-gold-light">
+            Demo Mode - Viewing sample data. Sign in to see your real information.
+          </p>
+        </div>
+      )}
+
+      {/* Welcome Header */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl lg:text-3xl font-bold">
+          <span className="gradient-gold">Agency Dashboard</span>
+        </h1>
+        <p className="text-muted-foreground">
+          Overview of all creators and combined performance metrics.
+        </p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Revenue */}
+        <div className="glass-card p-5">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Total Monthly Revenue</p>
+              <p className="text-2xl font-bold mt-1">{formatCurrency(stats.totalRevenue)}</p>
+            </div>
+            <div className="p-2 rounded-lg bg-gold/10">
+              <Wallet className="h-5 w-5 text-gold" />
+            </div>
+          </div>
+          <div className="flex items-center gap-1 mt-3">
+            {stats.avgRevenueChange >= 0 ? (
+              <>
+                <TrendingUp className="h-4 w-4 text-success" />
+                <span className="text-sm text-success">+{stats.avgRevenueChange.toFixed(1)}%</span>
+              </>
+            ) : (
+              <>
+                <TrendingDown className="h-4 w-4 text-destructive" />
+                <span className="text-sm text-destructive">{stats.avgRevenueChange.toFixed(1)}%</span>
+              </>
+            )}
+            <span className="text-xs text-muted-foreground ml-1">avg vs last month</span>
+          </div>
+        </div>
+
+        {/* Total Creators */}
+        <div className="glass-card p-5">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Active Creators</p>
+              <p className="text-2xl font-bold mt-1">{stats.totalCreators}</p>
+            </div>
+            <div className="p-2 rounded-lg bg-purple/10">
+              <Users className="h-5 w-5 text-purple" />
+            </div>
+          </div>
+          <Link 
+            href="/admin/creators"
+            className="flex items-center gap-1 mt-3 text-sm text-purple hover:text-purple-light transition-colors"
+          >
+            View all creators
+            <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+
+        {/* Total Subscribers */}
+        <div className="glass-card p-5">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Total Subscribers</p>
+              <p className="text-2xl font-bold mt-1">{stats.totalSubscribers.toLocaleString()}</p>
+            </div>
+            <div className="p-2 rounded-lg bg-gold/10">
+              <BarChart3 className="h-5 w-5 text-gold" />
+            </div>
+          </div>
+          <Link 
+            href="/admin/analytics"
+            className="flex items-center gap-1 mt-3 text-sm text-gold hover:text-gold-light transition-colors"
+          >
+            View analytics
+            <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+
+        {/* Pending Tasks */}
+        <div className="glass-card p-5">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Pending Tasks</p>
+              <p className="text-2xl font-bold mt-1">{stats.pendingTasks}</p>
+            </div>
+            <div className="p-2 rounded-lg bg-purple/10">
+              <ListTodo className="h-5 w-5 text-purple" />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            Across all creators
+          </p>
+        </div>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Creators */}
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Top Performers</h2>
+            <Link 
+              href="/admin/creators"
+              className="text-sm text-purple hover:text-purple-light transition-colors"
+            >
+              View all
+            </Link>
+          </div>
+          
+          {creators.length === 0 ? (
+            <div className="text-center py-8">
+              <Users className="h-12 w-12 text-purple/50 mx-auto mb-3" />
+              <p className="text-muted-foreground">No creators yet</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {creators.slice(0, 5).map((creator, index) => (
+                <Link 
+                  key={creator.id}
+                  href={`/admin/creators/${creator.id}`}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-gold to-purple text-sm font-semibold text-primary-foreground">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{creator.display_name || creator.name}</p>
+                    <p className="text-xs text-muted-foreground">{creator.platform || 'Multi-platform'}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-gold">{formatCurrency(creator.monthly_revenue || 0)}</p>
+                    <div className="flex items-center justify-end gap-1">
+                      {(creator.revenue_change || 0) >= 0 ? (
+                        <TrendingUp className="h-3 w-3 text-success" />
+                      ) : (
+                        <TrendingDown className="h-3 w-3 text-destructive" />
+                      )}
+                      <span className={`text-xs ${(creator.revenue_change || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {(creator.revenue_change || 0) >= 0 ? '+' : ''}{creator.revenue_change?.toFixed(1) || 0}%
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Recent Transactions */}
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Recent Transactions</h2>
+            <Link 
+              href="/admin/finances"
+              className="text-sm text-gold hover:text-gold-light transition-colors"
+            >
+              View all
+            </Link>
+          </div>
+          
+          {transactions.length === 0 ? (
+            <div className="text-center py-8">
+              <Wallet className="h-12 w-12 text-gold/50 mx-auto mb-3" />
+              <p className="text-muted-foreground">No transactions yet</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {transactions.slice(0, 5).map((tx) => (
+                <div 
+                  key={tx.id}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/20"
+                >
+                  <div className={`p-2 rounded-lg ${tx.type === 'income' ? 'bg-success/10' : 'bg-destructive/10'}`}>
+                    {tx.type === 'income' ? (
+                      <TrendingUp className="h-4 w-4 text-success" />
+                    ) : (
+                      <TrendingDown className="h-4 w-4 text-destructive" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{tx.description || tx.category}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tx.creator_name} &middot; {format(new Date(tx.transaction_date), 'MMM d')}
+                    </p>
+                  </div>
+                  <p className={`font-semibold ${tx.type === 'income' ? 'text-success' : 'text-destructive'}`}>
+                    {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Pending Tasks Across Creators */}
+        <div className="glass-card p-5 lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Pending Tasks</h2>
+          </div>
+          
+          {tasks.length === 0 ? (
+            <div className="text-center py-8">
+              <ListTodo className="h-12 w-12 text-purple/50 mx-auto mb-3" />
+              <p className="text-muted-foreground">No pending tasks</p>
+              <p className="text-sm text-muted-foreground/70">All creators are up to date!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {tasks.slice(0, 8).map((task) => (
+                <div 
+                  key={task.id}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{task.title}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-muted-foreground">{task.creator_name}</span>
+                      {task.due_date && (
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {format(new Date(task.due_date), 'MMM d')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <span className={getTaskPriorityColor(task.priority)}>
+                    {task.priority}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
