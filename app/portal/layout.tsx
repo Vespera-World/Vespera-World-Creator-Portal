@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { PortalSidebar } from "@/components/portal/portal-sidebar"
 import type { Client, CreatorPortalUser } from "@/lib/types/database"
+import { redirect } from "next/navigation"
 
 export default async function PortalLayout({
   children,
@@ -9,27 +10,28 @@ export default async function PortalLayout({
 }) {
   const supabase = await createClient()
 
-  // Get authenticated user — no redirect, demo mode allows unauthenticated access
   const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
 
   let client: Client | null = null
 
-  if (user) {
-    // Get creator portal user mapping
-    const { data: portalUser } = await supabase
-      .from("creator_portal_users")
-      .select("*")
-      .eq("auth_user_id", user.id)
-      .single() as { data: CreatorPortalUser | null }
+  // Get creator portal user mapping
+  const { data: portalUser } = await supabase
+    .from("creator_portal_users")
+    .select("*")
+    .eq("auth_user_id", user.id)
+    .single() as { data: CreatorPortalUser | null }
 
-    if (portalUser) {
-      const { data } = await supabase
-        .from("clients")
-        .select("*")
-        .eq("id", portalUser.client_id)
-        .single() as { data: Client | null }
-      client = data
-    }
+  if (portalUser) {
+    const { data } = await supabase
+      .from("clients")
+      .select("*")
+      .eq("id", portalUser.client_id)
+      .single() as { data: Client | null }
+    client = data
   }
 
   return (

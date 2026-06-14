@@ -64,10 +64,15 @@ const navigation = [
     href: "/portal/profile", 
     icon: User 
   },
-  { 
-    title: "Settings", 
-    href: "/portal/settings", 
-    icon: Settings 
+  {
+    title: "Settings",
+    href: "/portal/settings",
+    icon: Settings,
+  },
+  {
+    title: "Integrations",
+    href: "/portal/settings/integrations",
+    icon: LinkIcon,
   },
 ]
 

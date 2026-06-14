@@ -13,6 +13,7 @@ import {
   Users,
   Settings,
   LogOut,
+  UserPlus,
   Menu,
   X,
   Building2,
@@ -51,11 +52,16 @@ const navigation = [
     icon: FolderOpen,
     description: "All creator content"
   },
-  { 
-    title: "Settings", 
-    href: "/admin/settings", 
+  {
+    title: "Invite Creator",
+    href: "/admin/invite",
+    icon: UserPlus,
+  },
+  {
+    title: "Settings",
+    href: "/admin/settings",
     icon: Settings,
-    description: "Admin settings"
+    description: "Admin settings",
   },
 ]
 
