@@ -9,6 +9,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import type { CreatorPortalUser } from '@/lib/types/database'
+import { SocialLoginButtons } from '@/components/auth/social-login-buttons'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -122,21 +123,14 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Demo Access */}
-          <div className="mt-4">
+          {/* Social Login */}
+          <div className="mt-4 space-y-3">
             <div className="relative flex items-center gap-3 my-4">
               <div className="flex-1 h-px bg-border/40" />
-              <span className="text-xs text-muted-foreground uppercase tracking-widest">or</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-widest">or continue with</span>
               <div className="flex-1 h-px bg-border/40" />
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-primary/40 text-primary hover:text-foreground hover:bg-primary/10 bg-transparent"
-              onClick={() => router.push('/portal')}
-            >
-              Skip Login (Demo Mode)
-            </Button>
+            <SocialLoginButtons />
           </div>
 
           {/* Footer */}
