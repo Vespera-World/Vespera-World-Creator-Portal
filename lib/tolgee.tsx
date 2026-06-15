@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 // Tolgee config — NEVER expose this key in production
 // For dev: fine to use. For prod: restrict key or remove InContextTools.
 const TOLGEE_API_KEY = process.env.NEXT_PUBLIC_TOLGEE_API_KEY || ""
-const TOLGEE_API_URL = process.env.NEXT_PUBLIC_TOLGEE_API_URL || "http://tolgee-xxk9o1tlg2mg5qdtd99a2arz.20.228.65.111.sslip.io"
+const TOLGEE_API_URL = process.env.NEXT_PUBLIC_TOLGEE_API_URL || ""
 
 export const tolgee = Tolgee()
   .use(InContextTools())
