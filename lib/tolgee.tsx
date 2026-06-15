@@ -1,4 +1,4 @@
-import { Tolgee, InContextTools, FormatSimple, BackendFetch } from "@tolgee/web"
+import { Tolgee, FormatSimple, BackendFetch } from "@tolgee/web"
 import { useEffect, useState } from "react"
 
 // Tolgee config — NEVER expose this key in production
