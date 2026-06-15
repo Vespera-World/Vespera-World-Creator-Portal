@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import type { CreatorPortalUser } from '@/lib/types/database'
 import { MagicLinkLogin } from '@/components/auth/magic-link-login'
+import { PhoneLogin } from '@/components/auth/phone-login'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -131,6 +132,16 @@ export default function LoginPage() {
               <div className="flex-1 h-px bg-border/40" />
             </div>
             <MagicLinkLogin />
+          </div>
+
+          {/* Phone Login */}
+          <div className="mt-4">
+            <div className="relative flex items-center gap-3 my-4">
+              <div className="flex-1 h-px bg-border/40" />
+              <span className="text-xs text-muted-foreground uppercase tracking-widest">or login with phone</span>
+              <div className="flex-1 h-px bg-border/40" />
+            </div>
+            <PhoneLogin />
           </div>
 
           {/* Footer */}
