@@ -60,7 +60,9 @@ export function LinksClient({ links, creator, isDemo }: LinksClientProps) {
   const [activeTab, setActiveTab] = useState<"links" | "analytics">("links")
   
   const profileSlug = creator?.slug || creator?.handle
-  const profileUrl = profileSlug ? `https://vespera.link/${profileSlug}` : null
+  // Use internal /l/[slug] route; the external vespera.link domain resolves there in prod
+  const profileUrl = profileSlug ? `/l/${profileSlug}` : null
+  const profileUrlDisplay = profileSlug ? `vespera.link/${profileSlug}` : null
 
   const totalViews = links.reduce((sum, link) => sum + (link.views || 0), 0)
   const totalClicks = links.reduce((sum, link) => sum + (link.clicks || link.click_count || 0), 0)
