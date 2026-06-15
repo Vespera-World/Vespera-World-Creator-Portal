@@ -31,7 +31,7 @@ export default function LoginPage() {
         password,
       })
       if (authError) throw authError
-      
+    
       // Get user role from creator_portal_users table
       if (authData.user) {
         const { data: portalUser } = await supabase
