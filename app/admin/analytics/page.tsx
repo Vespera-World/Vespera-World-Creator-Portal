@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { AnalyticsClient } from "./analytics-client"
-import type { Client, Transaction } from "@/lib/types/database"
+import type { Creator, Transaction } from "@/lib/types/database"
 
 // Demo data
 const DEMO_CREATORS: Client[] = [
@@ -35,10 +35,10 @@ export default async function AnalyticsPage() {
 
   // Fetch all active creators
   const { data: creators } = await supabase
-    .from("clients")
+    .from("creators")
     .select("*")
     .eq("status", "active")
-    .order("monthly_revenue", { ascending: false }) as { data: Client[] | null }
+    .order("monthly_revenue", { ascending: false }) as { data: Creator[] | null }
 
   // For now, use demo monthly data - in a real app you'd aggregate from transactions
   // This would typically be a more complex query grouping by month

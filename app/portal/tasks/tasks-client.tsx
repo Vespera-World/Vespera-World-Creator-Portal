@@ -46,7 +46,7 @@ export function TasksClient({ tasks, clientId, isDemo }: TasksClientProps) {
 
     const supabase = createClient()
     const { error } = await supabase
-      .from("client_tasks")
+      .from("creator_tasks")
       .update({ status: newStatus, updated_at: new Date().toISOString() })
       .eq("id", task.id)
 

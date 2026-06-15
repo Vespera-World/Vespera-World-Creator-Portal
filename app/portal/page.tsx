@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { DashboardClient } from "./dashboard-client"
-import type { Client, ClientTask, Transaction, CreatorFormDoc, CreatorPortalUser } from "@/lib/types/database"
+import type { Creator, CreatorTask, Transaction, CreatorFormDoc, CreatorPortalUser } from "@/lib/types/database"
 import { redirect } from "next/navigation"
 
 export default async function PortalDashboardPage() {
@@ -32,27 +32,27 @@ export default async function PortalDashboardPage() {
     )
   }
 
-  // Fetch client details
-  const { data: client } = await supabase
-    .from("clients")
+  // Fetch creator details
+  const { data: creator } = await supabase
+    .from("creators")
     .select("*")
-    .eq("id", portalUser.client_id)
-    .single() as { data: Client | null }
+    .eq("id", portalUser.creator_id)
+    .single() as { data: Creator | null }
 
   // Fetch pending tasks
   const { data: tasks } = await supabase
-    .from("client_tasks")
+    .from("creator_tasks")
     .select("*")
-    .eq("client_id", portalUser.client_id)
+    .eq("creator_id", portalUser.creator_id)
     .neq("status", "completed")
     .order("due_date", { ascending: true })
-    .limit(5) as { data: ClientTask[] | null }
+    .limit(5) as { data: CreatorTask[] | null }
 
   // Fetch recent transactions
   const { data: transactions } = await supabase
     .from("transactions")
     .select("*")
-    .eq("client_id", portalUser.client_id)
+    .eq("creator_id", portalUser.creator_id)
     .order("transaction_date", { ascending: false })
     .limit(5) as { data: Transaction[] | null }
 
@@ -60,18 +60,18 @@ export default async function PortalDashboardPage() {
   const { data: formsDocs } = await supabase
     .from("creator_forms_docs")
     .select("*")
-    .eq("client_id", portalUser.client_id)
+    .eq("creator_id", portalUser.creator_id)
     .order("created_at", { ascending: false }) as { data: CreatorFormDoc[] | null }
 
   // Calculate stats
   const pendingTasks = tasks?.length || 0
   const pendingForms = formsDocs?.filter(f => f.status === 'pending' || f.status === 'draft').length || 0
-  const monthlyRevenue = client?.monthly_revenue || 0
-  const revenueChange = client?.revenue_change || 0
+  const monthlyRevenue = creator?.monthly_revenue || 0
+  const revenueChange = creator?.revenue_change || 0
 
   return (
     <DashboardClient
-      client={client}
+      client={creator}
       tasks={tasks || []}
       transactions={transactions || []}
       formsDocs={formsDocs || []}

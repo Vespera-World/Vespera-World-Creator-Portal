@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { CreatorsListClient } from "./creators-list-client"
-import type { Client, ClientSocialLink } from "@/lib/types/database"
+import type { Creator, CreatorSocialLink } from "@/lib/types/database"
 
 // Helper to create a demo client with all required fields
-function createDemoClient(partial: Partial<Client> & { id: string; name: string; email: string; pending_tasks?: number }): Client & { pending_tasks: number; social_links: ClientSocialLink[]; total_followers: number } {
+function createDemoClient(partial: Partial<Creator> & { id: string; name: string; email: string; pending_tasks?: number }): Creator & { pending_tasks: number; social_links: CreatorSocialLink[]; total_followers: number } {
   return {
     id: partial.id,
     name: partial.name,
@@ -74,30 +74,30 @@ export default async function CreatorsPage() {
 
   // Fetch all creators (excluding 'example' status)
   const { data: creatorsRaw } = await supabase
-    .from("clients")
+    .from("creators")
     .select("*")
     .neq("crm_status", "example")
-    .order("monthly_revenue", { ascending: false, nullsFirst: false }) as { data: Client[] | null }
+    .order("monthly_revenue", { ascending: false, nullsFirst: false }) as { data: Creator[] | null }
 
   // Fetch all social links for all creators
   const { data: socialLinksRaw } = await supabase
-    .from("client_social_links")
-    .select("*") as { data: ClientSocialLink[] | null }
+    .from("creator_social_links")
+    .select("*") as { data: CreatorSocialLink[] | null }
 
-  // Create a map of client_id to social links
-  const socialLinksMap = new Map<string, ClientSocialLink[]>()
+  // Create a map of creator_id to social links
+  const socialLinksMap = new Map<string, CreatorSocialLink[]>()
   ;(socialLinksRaw || []).forEach((link) => {
-    const existing = socialLinksMap.get(link.client_id) || []
+    const existing = socialLinksMap.get(link.creator_id) || []
     existing.push(link)
-    socialLinksMap.set(link.client_id, existing)
+    socialLinksMap.set(link.creator_id, existing)
   })
 
   // Get pending task counts for each creator
   const creators = await Promise.all((creatorsRaw || []).map(async (creator) => {
     const { count } = await supabase
-      .from("client_tasks")
+      .from("creator_tasks")
       .select("*", { count: 'exact', head: true })
-      .eq("client_id", creator.id)
+      .eq("creator_id", creator.id)
       .neq("status", "completed")
     
     const socialLinks = socialLinksMap.get(creator.id) || []

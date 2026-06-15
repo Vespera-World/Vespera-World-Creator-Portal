@@ -282,7 +282,7 @@ export function ContentClient({
         const { error: dbError } = await supabase
           .from('creator_files')
           .insert({
-            client_id: clientId,
+            creator_id: clientId,
             uploaded_by: userId,
             storage_type: 'raw',
             file_name: file.name,

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { PortalSidebar } from "@/components/portal/portal-sidebar"
-import type { Client, CreatorPortalUser } from "@/lib/types/database"
+import type { Creator, CreatorPortalUser } from "@/lib/types/database"
 import { redirect } from "next/navigation"
 
 export default async function PortalLayout({
@@ -16,7 +16,7 @@ export default async function PortalLayout({
     redirect("/auth/login")
   }
 
-  let client: Client | null = null
+  let creator: Creator | null = null
 
   // Get creator portal user mapping
   const { data: portalUser } = await supabase
@@ -25,18 +25,18 @@ export default async function PortalLayout({
     .eq("auth_user_id", user.id)
     .single() as { data: CreatorPortalUser | null }
 
-  if (portalUser) {
+  if (portalUser?.creator_id) {
     const { data } = await supabase
-      .from("clients")
+      .from("creators")
       .select("*")
-      .eq("id", portalUser.client_id)
-      .single() as { data: Client | null }
-    client = data
+      .eq("id", portalUser.creator_id)
+      .single() as { data: Creator | null }
+    creator = data
   }
 
   return (
     <div className="min-h-screen gradient-mesh">
-      <PortalSidebar client={client} />
+      <PortalSidebar client={creator} />
       <main className="lg:pl-64">
         <div className="min-h-screen p-4 lg:p-6">
           {children}

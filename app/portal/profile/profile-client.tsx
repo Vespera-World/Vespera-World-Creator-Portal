@@ -83,14 +83,14 @@ export function ProfileClient({ client, userEmail, isDemo }: ProfileClientProps)
               {client?.status && (
                 <span className="pill-gold">{client.status}</span>
               )}
-              {client?.vespera_slug && (
+              {(client?.slug || client?.handle) && (
                 <a 
-                  href={`https://vespera.link/${client.vespera_slug}`}
+                  href={`https://vespera.link/${client.slug || client.handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="pill-success flex items-center gap-1 hover:opacity-80 transition-opacity"
                 >
-                  vespera.link/{client.vespera_slug}
+                  vespera.link/{client.slug || client.handle}
                   <ExternalLink className="h-3 w-3" />
                 </a>
               )}

@@ -1,22 +1,13 @@
 import { createClient } from "@/lib/supabase/server"
 import { ProfileClient } from "./profile-client"
-import type { Client, CreatorPortalUser } from "@/lib/types/database"
-
-// Demo data
-const demoClient: Client = {
-  id: 'demo', name: 'Demo Creator', email: 'demo@vesperaworld.com', status: 'active',
-  phone: '+1 (555) 123-4567', instagram_handle: '@democreator', tiktok_handle: '@democreator',
-  youtube_handle: '@DemoCreator', twitter_handle: '@democreator',
-  created_at: new Date().toISOString(), updated_at: new Date().toISOString()
-}
+import type { Creator, CreatorPortalUser } from "@/lib/types/database"
 
 export default async function ProfilePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Demo mode
   if (!user) {
-    return <ProfileClient client={demoClient} userEmail="demo@vesperaworld.com" isDemo />
+    return <ProfileClient client={null} userEmail="" isDemo />
   }
 
   const { data: portalUser } = await supabase
@@ -25,15 +16,15 @@ export default async function ProfilePage() {
     .eq("auth_user_id", user.id)
     .single() as { data: CreatorPortalUser | null }
 
-  if (!portalUser) {
-    return <ProfileClient client={demoClient} userEmail="demo@vesperaworld.com" isDemo />
+  if (!portalUser?.creator_id) {
+    return <ProfileClient client={null} userEmail={user.email || ''} isDemo />
   }
 
-  const { data: client } = await supabase
-    .from("clients")
+  const { data: creator } = await supabase
+    .from("creators")
     .select("*")
-    .eq("id", portalUser.client_id)
-    .single() as { data: Client | null }
+    .eq("id", portalUser.creator_id)
+    .single() as { data: Creator | null }
 
-  return <ProfileClient client={client} userEmail={user.email || ''} />
+  return <ProfileClient client={creator} userEmail={user.email || ''} />
 }
