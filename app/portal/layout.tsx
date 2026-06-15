@@ -25,11 +25,11 @@ export default async function PortalLayout({
     .eq("auth_user_id", user.id)
     .single() as { data: CreatorPortalUser | null }
 
-  if (portalUser) {
+  if (portalUser?.creator_id) {
     const { data } = await supabase
-      .from("clients")
+      .from("creators")
       .select("*")
-      .eq("id", portalUser.client_id)
+      .eq("id", portalUser.creator_id)
       .single() as { data: Client | null }
     client = data
   }

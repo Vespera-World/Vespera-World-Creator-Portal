@@ -32,18 +32,18 @@ export default async function PortalDashboardPage() {
     )
   }
 
-  // Fetch client details
+  // Fetch creator details
   const { data: client } = await supabase
-    .from("clients")
+    .from("creators")
     .select("*")
-    .eq("id", portalUser.client_id)
+    .eq("id", portalUser.creator_id)
     .single() as { data: Client | null }
 
   // Fetch pending tasks
   const { data: tasks } = await supabase
-    .from("client_tasks")
+    .from("creator_tasks")
     .select("*")
-    .eq("client_id", portalUser.client_id)
+    .eq("creator_id", portalUser.creator_id)
     .neq("status", "completed")
     .order("due_date", { ascending: true })
     .limit(5) as { data: ClientTask[] | null }
@@ -52,7 +52,7 @@ export default async function PortalDashboardPage() {
   const { data: transactions } = await supabase
     .from("transactions")
     .select("*")
-    .eq("client_id", portalUser.client_id)
+    .eq("creator_id", portalUser.creator_id)
     .order("transaction_date", { ascending: false })
     .limit(5) as { data: Transaction[] | null }
 
@@ -60,7 +60,7 @@ export default async function PortalDashboardPage() {
   const { data: formsDocs } = await supabase
     .from("creator_forms_docs")
     .select("*")
-    .eq("client_id", portalUser.client_id)
+    .eq("creator_id", portalUser.creator_id)
     .order("created_at", { ascending: false }) as { data: CreatorFormDoc[] | null }
 
   // Calculate stats

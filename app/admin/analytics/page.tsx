@@ -1,51 +1,48 @@
 import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
 import { AnalyticsClient } from "./analytics-client"
-import type { Client, Transaction } from "@/lib/types/database"
-
-// Demo data
-const DEMO_CREATORS: Client[] = [
-  { id: "demo-1", name: "Star", display_name: "Star Luna", email: "star@vesperaworld.com", status: "active", monthly_revenue: 24750, revenue_change: 12.5, subscribers: 15400, platform: "OnlyFans", created_at: new Date().toISOString(), updated_at: new Date().toISOString(), phone: null, avatar: null, join_date: null, bio: null, vespera_slug: null },
-  { id: "demo-2", name: "Nova", display_name: "Nova Skye", email: "nova@vesperaworld.com", status: "active", monthly_revenue: 18200, revenue_change: 8.3, subscribers: 12800, platform: "Fansly", created_at: new Date().toISOString(), updated_at: new Date().toISOString(), phone: null, avatar: null, join_date: null, bio: null, vespera_slug: null },
-  { id: "demo-3", name: "Ember", display_name: "Ember Rose", email: "ember@vesperaworld.com", status: "active", monthly_revenue: 31500, revenue_change: 22.1, subscribers: 21000, platform: "OnlyFans", created_at: new Date().toISOString(), updated_at: new Date().toISOString(), phone: null, avatar: null, join_date: null, bio: null, vespera_slug: null },
-  { id: "demo-4", name: "Luna", display_name: "Luna Midnight", email: "luna@vesperaworld.com", status: "active", monthly_revenue: 14300, revenue_change: -3.2, subscribers: 9500, platform: "Fansly", created_at: new Date().toISOString(), updated_at: new Date().toISOString(), phone: null, avatar: null, join_date: null, bio: null, vespera_slug: null },
-]
-
-const DEMO_MONTHLY_DATA = [
-  { month: "Jan", revenue: 65000, subscribers: 45000 },
-  { month: "Feb", revenue: 72000, subscribers: 48000 },
-  { month: "Mar", revenue: 78000, subscribers: 51000 },
-  { month: "Apr", revenue: 82000, subscribers: 54000 },
-  { month: "May", revenue: 88750, subscribers: 58700 },
-]
+import type { Client } from "@/lib/types/database"
 
 export default async function AnalyticsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Demo mode
   if (!user) {
-    return (
-      <AnalyticsClient
-        creators={DEMO_CREATORS}
-        monthlyData={DEMO_MONTHLY_DATA}
-        isDemo
-      />
-    )
+    redirect("/auth/login")
   }
 
   // Fetch all active creators
   const { data: creators } = await supabase
-    .from("clients")
+    .from("creators")
     .select("*")
     .eq("status", "active")
     .order("monthly_revenue", { ascending: false }) as { data: Client[] | null }
 
-  // For now, use demo monthly data - in a real app you'd aggregate from transactions
-  // This would typically be a more complex query grouping by month
+  // Aggregate monthly revenue/subscribers from creator_analytics
+  const { data: analyticsRows } = await supabase
+    .from("creator_analytics")
+    .select("Start_Date, revenue, subscribers")
+    .order("Start_Date", { ascending: true }) as {
+      data: { Start_Date: string; revenue: number | null; subscribers: number | null }[] | null
+    }
+
+  const monthlyMap = new Map<string, { month: string; revenue: number; subscribers: number }>()
+  ;(analyticsRows || []).forEach((row) => {
+    if (!row.Start_Date) return
+    const date = new Date(row.Start_Date)
+    const key = `${date.getFullYear()}-${date.getMonth()}`
+    const month = date.toLocaleString("en-US", { month: "short" })
+    const existing = monthlyMap.get(key) || { month, revenue: 0, subscribers: 0 }
+    existing.revenue += Number(row.revenue) || 0
+    existing.subscribers += Number(row.subscribers) || 0
+    monthlyMap.set(key, existing)
+  })
+  const monthlyData = Array.from(monthlyMap.values())
+
   return (
     <AnalyticsClient
       creators={creators || []}
-      monthlyData={DEMO_MONTHLY_DATA}
+      monthlyData={monthlyData}
     />
   )
 }

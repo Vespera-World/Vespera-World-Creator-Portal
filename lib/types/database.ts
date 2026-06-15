@@ -13,7 +13,8 @@ export interface Client {
   join_date: string | null
   bio: string | null
   notes: string | null
-  vespera_slug: string | null
+  slug: string | null
+  handle: string | null
   crm_status: 'active' | 'prospect' | 'cold_lead' | 'inactive' | 'example' | null
   crisp_people_id: string | null
   last_contact_at: string | null
@@ -49,7 +50,7 @@ export interface Client {
 
 export interface ClientSocialLink {
   id: string
-  client_id: string
+  creator_id: string
   platform: string
   platform_url: string
   social_media_platform: 'Instagram' | 'Facebook' | 'TikTok' | 'X (Twitter)' | 'Telegram (Public)' | 'OnlyFans (18+)' | 'Fansly (18+)' | 'Telegram (18+)' | 'Discord (18+)' | null
@@ -61,7 +62,7 @@ export interface ClientSocialLink {
 
 export interface ClientAnalytics {
   id: string
-  client_id: string
+  creator_id: string
   Start_Date: string
   revenue: number
   profit: number
@@ -75,7 +76,7 @@ export interface ClientAnalytics {
 
 export interface ClientTask {
   id: string
-  client_id: string
+  creator_id: string
   title: string
   description: string | null
   due_date: string | null
@@ -92,7 +93,7 @@ export interface Transaction {
   category: string
   amount: number
   description: string | null
-  client_id: string
+  creator_id: string
   vendor_id: string | null
   region: string | null
   payment_method: string | null
@@ -104,7 +105,7 @@ export interface Transaction {
 
 export interface CreatorFormDoc {
   id: string
-  client_id: string
+  creator_id: string
   form_key: string
   title: string
   category: string | null
@@ -122,7 +123,7 @@ export interface CreatorFormDoc {
 
 export interface LinkHubLink {
   id: string
-  client_id: string
+  creator_id: string
   title: string
   Vespera_Link_URL: string
   icon: string | null
@@ -141,7 +142,7 @@ export interface LinkHubLink {
 
 export interface CreatorConversation {
   id: string
-  client_id: string
+  creator_id: string
   crisp_conversation_id: string | null
   last_message: string | null
   last_message_at: string | null
@@ -169,7 +170,7 @@ export interface CreatorMessage {
 export interface CreatorPortalUser {
   id: string
   auth_user_id: string
-  client_id: string | null // NULL for admin users
+  creator_id: string | null // NULL for admin users
   role: 'admin' | 'creator'
   created_at: string
   updated_at: string
@@ -177,7 +178,7 @@ export interface CreatorPortalUser {
 
 export interface CreatorFile {
   id: string
-  client_id: string | null
+  creator_id: string | null
   storage_type: 'raw' | 'completed'
   file_name: string
   file_path: string | null
@@ -196,7 +197,7 @@ export interface CreatorFile {
 
 export interface MarketplaceItem {
   id: string
-  client_id: string
+  creator_id: string
   title: string
   description: string | null
   price: number
@@ -218,7 +219,7 @@ export interface MarketplaceItem {
 
 export interface SocialMediaContent {
   id: string
-  client_id: string
+  creator_id: string
   title: string
   description: string | null
   platform: 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'facebook' | 'linkedin' | 'threads' | 'other'

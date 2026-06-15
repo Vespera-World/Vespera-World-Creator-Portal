@@ -28,12 +28,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email and name are required" }, { status: 400 })
     }
 
-    // Create client record first
-    const { data: client, error: clientError } = await supabase
-      .from("clients")
+    // Create creator record first
+    const { data: creator, error: creatorError } = await supabase
+      .from("creators")
       .insert({
         name,
         display_name: display_name || name,
+        handle: name,
         email,
         status: "active",
         crm_status: "active",
@@ -41,9 +42,9 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (clientError) {
-      console.error("Failed to create client:", clientError)
-      return NextResponse.json({ error: "Failed to create client" }, { status: 500 })
+    if (creatorError) {
+      console.error("Failed to create creator:", creatorError)
+      return NextResponse.json({ error: "Failed to create creator" }, { status: 500 })
     }
 
     // Send magic link using Supabase Auth
@@ -70,23 +71,22 @@ export async function POST(request: NextRequest) {
     }
 
     if (!magicLinkSent) {
-      // Rollback client creation
-      await supabase.from("clients").delete().eq("id", client.id)
+      // Rollback creator creation
+      await supabase.from("creators").delete().eq("id", creator.id)
       return NextResponse.json({ error: "Failed to send invite email" }, { status: 500 })
     }
 
     // Create invite record
     await supabase.from("creator_portal_users").insert({
       auth_user_id: null, // filled on first login
-      client_id: client.id,
+      creator_id: creator.id,
       role: "creator",
-      status: "pending",
     })
 
     return NextResponse.json({
       success: true,
       message: `Invite sent to ${email}`,
-      client_id: client.id,
+      creator_id: creator.id,
     })
   } catch (error) {
     console.error("Invite error:", error)

@@ -44,7 +44,7 @@ export function FinancesClient({
       tx.creator_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tx.category?.toLowerCase().includes(searchQuery.toLowerCase())
     
-    const matchesCreator = selectedCreator === "all" || tx.client_id === selectedCreator
+    const matchesCreator = selectedCreator === "all" || tx.creator_id === selectedCreator
     const matchesType = selectedType === "all" || tx.type === selectedType
 
     return matchesSearch && matchesCreator && matchesType

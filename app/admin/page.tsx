@@ -23,36 +23,35 @@ export default async function AdminDashboardPage() {
     redirect("/portal")
   }
 
-  // Fetch all active creators (exclude 'example' status)
+  // Fetch all creators
   const { data: creators } = await supabase
-    .from("clients")
+    .from("creators")
     .select("*")
-    .eq("crm_status", "active")
     .order("monthly_revenue", { ascending: false, nullsFirst: false }) as { data: Client[] | null }
 
-  // Fetch all pending tasks with client info
+  // Fetch all pending tasks with creator info
   const { data: tasksRaw } = await supabase
-    .from("client_tasks")
-    .select("*, clients(name, display_name)")
+    .from("creator_tasks")
+    .select("*, creators(name, display_name)")
     .neq("status", "completed")
     .order("due_date", { ascending: true })
     .limit(10)
 
-  const tasks = (tasksRaw || []).map((t: ClientTask & { clients: { name: string, display_name: string | null } | null }) => ({
+  const tasks = (tasksRaw || []).map((t: ClientTask & { creators: { name: string, display_name: string | null } | null }) => ({
     ...t,
-    creator_name: t.clients?.display_name || t.clients?.name || 'Unknown'
+    creator_name: t.creators?.display_name || t.creators?.name || 'Unknown'
   }))
 
-  // Fetch recent transactions with client info
+  // Fetch recent transactions with creator info
   const { data: transactionsRaw } = await supabase
     .from("transactions")
-    .select("*, clients(name, display_name)")
+    .select("*, creators(name, display_name)")
     .order("transaction_date", { ascending: false })
     .limit(10)
 
-  const transactions = (transactionsRaw || []).map((t: Transaction & { clients: { name: string, display_name: string | null } | null }) => ({
+  const transactions = (transactionsRaw || []).map((t: Transaction & { creators: { name: string, display_name: string | null } | null }) => ({
     ...t,
-    creator_name: t.clients?.display_name || t.clients?.name || 'Unknown'
+    creator_name: t.creators?.display_name || t.creators?.name || 'Unknown'
   }))
 
   // Calculate combined stats

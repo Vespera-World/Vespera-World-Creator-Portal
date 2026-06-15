@@ -58,9 +58,9 @@ export function AdminContentClient({
   const [selectedSocialContent, setSelectedSocialContent] = useState<(SocialMediaContent & { client?: Client }) | null>(null)
 
   // Filter by creator
-  const filterByCreator = <T extends { client_id: string | null }>(items: T[]): T[] => {
+  const filterByCreator = <T extends { creator_id: string | null }>(items: T[]): T[] => {
     if (selectedCreator === "all") return items
-    return items.filter(item => item.client_id === selectedCreator)
+    return items.filter(item => item.creator_id === selectedCreator)
   }
 
   // Filter files by storage type
