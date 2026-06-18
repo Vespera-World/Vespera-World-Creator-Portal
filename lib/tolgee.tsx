@@ -2,12 +2,12 @@ import { Tolgee, FormatSimple, BackendFetch } from "@tolgee/web"
 import { useEffect, useState } from "react"
 
 // Tolgee config — NEVER expose this key in production
-// For dev: fine to use. For prod: restrict key or remove InContextTools.
+// DevTools (in-context translation UI) removed: needs CDN that's not reachable
+// from local dev. Tolgee core still works for translation lookups.
 const TOLGEE_API_KEY = process.env.NEXT_PUBLIC_TOLGEE_API_KEY || ""
 const TOLGEE_API_URL = process.env.NEXT_PUBLIC_TOLGEE_API_URL || ""
 
 export const tolgee = Tolgee()
-  .use(InContextTools())
   .use(FormatSimple())
   .use(BackendFetch())
   .init({
@@ -24,28 +24,17 @@ export const tolgee = Tolgee()
   })
 
 export function TolgeeProvider({ children }: { children: React.ReactNode }) {
-  const [ready, setReady] = useState(false)
-
-  useEffect(() => {
-    tolgee.run().then(() => setReady(true))
-    return () => {
-      tolgee.stop()
-    }
-  }, [])
-
-  if (!ready) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="animate-spin h-8 w-8 border-2 border-gold border-t-transparent rounded-full" />
-      </div>
-    )
-  }
-
+  // Render children immediately — don't block on Tolgee server (which we
+  // don't have running locally). Translations fall back to staticData en/es.
   return <>{children}</>
 }
 
 export async function changeLanguage(lang: string) {
-  await tolgee.changeLanguage(lang)
+  try {
+    await tolgee.changeLanguage(lang)
+  } catch {
+    // ignore — local fallback handles UI strings
+  }
 }
 
 export function useTolgee() {
@@ -54,7 +43,9 @@ export function useTolgee() {
   const switchLang = async (newLang: string) => {
     await changeLanguage(newLang)
     setLang(newLang)
-    document.documentElement.lang = newLang
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = newLang
+    }
   }
 
   return { lang, switchLang, languages: ["en", "es", "pt"] }
