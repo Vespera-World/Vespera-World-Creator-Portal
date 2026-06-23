@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { AdminContentClient } from "./content-client"
-import type { CreatorFile, Client, CreatorPortalUser, MarketplaceItem, SocialMediaContent } from "@/lib/types/database"
+import type { CreatorFile, Creator, CreatorPortalUser, MarketplaceItem, SocialMediaContent } from "@/lib/types/database"
 
 // Demo data
 const demoClients: Client[] = [
@@ -346,11 +346,11 @@ export default async function AdminContentPage() {
     )
   }
 
-  // Fetch all clients
+  // Fetch all creators
   const { data: clients } = await supabase
-    .from("clients")
+    .from("creators")
     .select("*")
-    .order("name") as { data: Client[] | null }
+    .order("name") as { data: Creator[] | null }
 
   // Fetch all files
   const { data: files } = await supabase
@@ -370,22 +370,22 @@ export default async function AdminContentPage() {
     .select("*")
     .order("created_at", { ascending: false }) as { data: SocialMediaContent[] | null }
 
-  // Join files with clients
+  // Join files with creators
   const filesWithClients = (files || []).map(file => ({
     ...file,
-    client: (clients || []).find(c => c.id === file.client_id)
+    client: (clients || []).find(c => c.id === file.creator_id)
   }))
 
-  // Join marketplace items with clients
+  // Join marketplace items with creators
   const marketplaceWithClients = (marketplaceItems || []).map(item => ({
     ...item,
-    client: (clients || []).find(c => c.id === item.client_id)
+    client: (clients || []).find(c => c.id === item.creator_id)
   }))
 
-  // Join social content with clients
+  // Join social content with creators
   const socialWithClients = (socialContent || []).map(content => ({
     ...content,
-    client: (clients || []).find(c => c.id === content.client_id)
+    client: (clients || []).find(c => c.id === content.creator_id)
   }))
 
   return (

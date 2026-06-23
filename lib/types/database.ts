@@ -1,39 +1,40 @@
-export interface Client {
+// Real DB schema: table is "creators", FK is "creator_id"
+export interface Creator {
   id: string
+  organization_id: string | null
   name: string
-  display_name: string | null
-  email: string
+  handle: string | null
+  email: string | null
   phone: string | null
-  platform: string | null
-  status: string
+  bio: string | null
+  avatar_url: string | null
   avatar: string | null
+  status: string | null
+  platform: string | null
+  social_links: Record<string, unknown> | null
+  financials: Record<string, unknown> | null
+  settings: Record<string, unknown> | null
+  display_name: string | null
+  slug: string | null
   monthly_revenue: number | null
   revenue_change: number | null
   subscribers: number | null
   join_date: string | null
-  bio: string | null
   notes: string | null
-  vespera_slug: string | null
-  crm_status: 'active' | 'prospect' | 'cold_lead' | 'inactive' | 'example' | null
+  crm_status: string | null
   crisp_people_id: string | null
   last_contact_at: string | null
   next_followup_at: string | null
   assigned_to: string | null
-  // Financial info
   bank_name: string | null
   bank_account_number: string | null
   bank_routing_number: string | null
   paypal_email: string | null
   cashapp_handle: string | null
-  // Identity info
   id_type: string | null
   id_number: string | null
   id_expiry: string | null
   ssn_last4: string | null
-  RFC: string | null
-  Government_First_Name: string | null
-  Government_Last_Name: string | null
-  // Contact info
   private_notes: string | null
   emergency_contact_name: string | null
   emergency_contact_phone: string | null
@@ -43,25 +44,35 @@ export interface Client {
   state: string | null
   zip_code: string | null
   country: string | null
+  RFC: string | null
+  Government_First_Name: string | null
+  Government_Last_Name: string | null
   created_at: string
   updated_at: string
 }
 
-export interface ClientSocialLink {
+// Alias for backward compat used in some client components
+export type Client = Creator
+
+export interface CreatorSocialLink {
   id: string
-  client_id: string
+  creator_id: string
   platform: string
   platform_url: string
   social_media_platform: 'Instagram' | 'Facebook' | 'TikTok' | 'X (Twitter)' | 'Telegram (Public)' | 'OnlyFans (18+)' | 'Fansly (18+)' | 'Telegram (18+)' | 'Discord (18+)' | null
+  fk_clients_client_display_name: string | null
   Adult_Content: string | null
   Follower_Count: number | null
   Explicit_Content: boolean | null
   created_at: string
 }
 
-export interface ClientAnalytics {
+// Alias for backward compat
+export type ClientSocialLink = CreatorSocialLink
+
+export interface CreatorAnalytics {
   id: string
-  client_id: string
+  creator_id: string
   Start_Date: string
   revenue: number
   profit: number
@@ -73,26 +84,36 @@ export interface ClientAnalytics {
   created_at: string
 }
 
-export interface ClientTask {
+// Alias for backward compat
+export type ClientAnalytics = CreatorAnalytics
+
+export interface CreatorTask {
   id: string
-  client_id: string
+  creator_id: string
   title: string
   description: string | null
   due_date: string | null
   priority: 'low' | 'medium' | 'high'
   status: 'pending' | 'in_progress' | 'completed'
+  completed: boolean | null
+  completed_at: string | null
+  completed_by: string | null
   assigned_by: string | null
+  created_by: string | null
   created_at: string
   updated_at: string
 }
 
+// Alias for backward compat
+export type ClientTask = CreatorTask
+
 export interface Transaction {
   id: string
-  type: 'income' | 'expense'
+  type: 'income' | 'expense' | 'revenue'
   category: string
   amount: number
   description: string | null
-  client_id: string
+  creator_id: string
   vendor_id: string | null
   region: string | null
   payment_method: string | null
@@ -104,7 +125,7 @@ export interface Transaction {
 
 export interface CreatorFormDoc {
   id: string
-  client_id: string
+  creator_id: string
   form_key: string
   title: string
   category: string | null
@@ -122,26 +143,28 @@ export interface CreatorFormDoc {
 
 export interface LinkHubLink {
   id: string
-  client_id: string
+  creator_id: string
   title: string
   Vespera_Link_URL: string
   icon: string | null
   qr_badge: string | null
   is_featured: boolean
   click_count: number
+  sort_order: number | null
   position: number
   is_active: boolean
-  type: string | null
-  price: number | null
+  creator_handle: string | null
   views: number
   clicks: number
+  type: string | null
+  price: number | null
   created_at: string
   updated_at: string
 }
 
 export interface CreatorConversation {
   id: string
-  client_id: string
+  creator_id: string
   crisp_conversation_id: string | null
   last_message: string | null
   last_message_at: string | null
@@ -169,7 +192,7 @@ export interface CreatorMessage {
 export interface CreatorPortalUser {
   id: string
   auth_user_id: string
-  client_id: string | null // NULL for admin users
+  creator_id: string | null
   role: 'admin' | 'creator'
   created_at: string
   updated_at: string
@@ -177,7 +200,7 @@ export interface CreatorPortalUser {
 
 export interface CreatorFile {
   id: string
-  client_id: string | null
+  creator_id: string | null
   storage_type: 'raw' | 'completed'
   file_name: string
   file_path: string | null
@@ -196,7 +219,7 @@ export interface CreatorFile {
 
 export interface MarketplaceItem {
   id: string
-  client_id: string
+  creator_id: string
   title: string
   description: string | null
   price: number
@@ -218,7 +241,7 @@ export interface MarketplaceItem {
 
 export interface SocialMediaContent {
   id: string
-  client_id: string
+  creator_id: string
   title: string
   description: string | null
   platform: 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'facebook' | 'linkedin' | 'threads' | 'other'

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { FinancesClient } from "./finances-client"
-import type { Client, Transaction } from "@/lib/types/database"
+import type { Creator, Transaction } from "@/lib/types/database"
 
 // Demo data
 const DEMO_CREATORS: Client[] = [
@@ -38,19 +38,19 @@ export default async function AdminFinancesPage() {
 
   // Fetch all active creators
   const { data: creators } = await supabase
-    .from("clients")
+    .from("creators")
     .select("*")
     .eq("status", "active")
-    .order("name") as { data: Client[] | null }
+    .order("name") as { data: Creator[] | null }
 
-  // Fetch all transactions with client info
+  // Fetch all transactions with creator info
   const { data: transactionsRaw } = await supabase
     .from("transactions")
-    .select("*, clients(name, display_name)")
+    .select("*, creators(name, display_name)")
     .order("transaction_date", { ascending: false })
     .limit(100)
 
-  const transactions = (transactionsRaw || []).map((t: Transaction & { clients: { name: string, display_name: string | null } | null }) => ({
+  const transactions = (transactionsRaw || []).map((t: Transaction & { creators: { name: string, display_name: string | null } | null }) => ({
     ...t,
     creator_name: t.clients?.display_name || t.clients?.name || 'Unknown'
   }))

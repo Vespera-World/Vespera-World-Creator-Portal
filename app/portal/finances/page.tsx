@@ -1,28 +1,13 @@
 import { createClient } from "@/lib/supabase/server"
 import { FinancesClient } from "./finances-client"
-import type { Transaction, Client, CreatorPortalUser } from "@/lib/types/database"
-
-// Demo data
-const demoClient: Client = {
-  id: 'demo', name: 'Demo Creator', email: 'demo@vesperaworld.com', status: 'active',
-  created_at: new Date().toISOString(), updated_at: new Date().toISOString()
-}
-
-const demoTransactions: Transaction[] = [
-  { id: '1', client_id: 'demo', type: 'revenue', amount: 2500, description: 'Brand Partnership - Nike', category: 'sponsorship', transaction_date: new Date(Date.now() - 86400000 * 2).toISOString(), created_at: new Date().toISOString() },
-  { id: '2', client_id: 'demo', type: 'revenue', amount: 1200, description: 'YouTube AdSense', category: 'ads', transaction_date: new Date(Date.now() - 86400000 * 5).toISOString(), created_at: new Date().toISOString() },
-  { id: '3', client_id: 'demo', type: 'expense', amount: 350, description: 'Equipment rental', category: 'production', transaction_date: new Date(Date.now() - 86400000 * 7).toISOString(), created_at: new Date().toISOString() },
-  { id: '4', client_id: 'demo', type: 'revenue', amount: 800, description: 'Affiliate commission', category: 'affiliate', transaction_date: new Date(Date.now() - 86400000 * 10).toISOString(), created_at: new Date().toISOString() },
-  { id: '5', client_id: 'demo', type: 'revenue', amount: 3200, description: 'Brand deal - Spotify', category: 'sponsorship', transaction_date: new Date(Date.now() - 86400000 * 14).toISOString(), created_at: new Date().toISOString() },
-]
+import type { Transaction, Creator, CreatorPortalUser } from "@/lib/types/database"
 
 export default async function FinancesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Demo mode
   if (!user) {
-    return <FinancesClient transactions={demoTransactions} client={demoClient} isDemo />
+    return <FinancesClient transactions={[]} client={null} isDemo />
   }
 
   const { data: portalUser } = await supabase
@@ -31,21 +16,21 @@ export default async function FinancesPage() {
     .eq("auth_user_id", user.id)
     .single() as { data: CreatorPortalUser | null }
 
-  if (!portalUser) {
-    return <FinancesClient transactions={demoTransactions} client={demoClient} isDemo />
+  if (!portalUser?.creator_id) {
+    return <FinancesClient transactions={[]} client={null} isDemo />
   }
 
-  const { data: client } = await supabase
-    .from("clients")
+  const { data: creator } = await supabase
+    .from("creators")
     .select("*")
-    .eq("id", portalUser.client_id)
-    .single() as { data: Client | null }
+    .eq("id", portalUser.creator_id)
+    .single() as { data: Creator | null }
 
   const { data: transactions } = await supabase
     .from("transactions")
     .select("*")
-    .eq("client_id", portalUser.client_id)
+    .eq("creator_id", portalUser.creator_id)
     .order("transaction_date", { ascending: false }) as { data: Transaction[] | null }
 
-  return <FinancesClient transactions={transactions || []} client={client} />
+  return <FinancesClient transactions={transactions || []} client={creator} />
 }

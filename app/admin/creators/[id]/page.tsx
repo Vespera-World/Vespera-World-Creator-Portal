@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
 import { CreatorDetailClient } from "./creator-detail-client"
-import type { Client, ClientTask, Transaction, CreatorFormDoc, ClientSocialLink, ClientAnalytics } from "@/lib/types/database"
+import type { Creator, CreatorTask, Transaction, CreatorFormDoc, CreatorSocialLink, CreatorAnalytics } from "@/lib/types/database"
 
 // Helper to create a full Client object from partial demo data
 function createDemoClient(partial: Partial<Client>): Client {
@@ -112,10 +112,10 @@ export default async function CreatorDetailPage({
 
   // Fetch creator
   const { data: creator } = await supabase
-    .from("clients")
+    .from("creators")
     .select("*")
     .eq("id", id)
-    .single() as { data: Client | null }
+    .single() as { data: Creator | null }
 
   if (!creator) {
     notFound()
@@ -123,16 +123,16 @@ export default async function CreatorDetailPage({
 
   // Fetch tasks
   const { data: tasks } = await supabase
-    .from("client_tasks")
+    .from("creator_tasks")
     .select("*")
-    .eq("client_id", id)
-    .order("due_date", { ascending: true }) as { data: ClientTask[] | null }
+    .eq("creator_id", id)
+    .order("due_date", { ascending: true }) as { data: CreatorTask[] | null }
 
   // Fetch transactions
   const { data: transactions } = await supabase
     .from("transactions")
     .select("*")
-    .eq("client_id", id)
+    .eq("creator_id", id)
     .order("transaction_date", { ascending: false })
     .limit(10) as { data: Transaction[] | null }
 
@@ -140,23 +140,23 @@ export default async function CreatorDetailPage({
   const { data: forms } = await supabase
     .from("creator_forms_docs")
     .select("*")
-    .eq("client_id", id)
+    .eq("creator_id", id)
     .order("created_at", { ascending: false }) as { data: CreatorFormDoc[] | null }
 
   // Fetch social links
   const { data: socialLinks } = await supabase
-    .from("client_social_links")
+    .from("creator_social_links")
     .select("*")
-    .eq("client_id", id)
-    .order("Follower_Count", { ascending: false, nullsFirst: false }) as { data: ClientSocialLink[] | null }
+    .eq("creator_id", id)
+    .order("Follower_Count", { ascending: false, nullsFirst: false }) as { data: CreatorSocialLink[] | null }
 
   // Fetch analytics
   const { data: analytics } = await supabase
-    .from("client_analytics")
+    .from("creator_analytics")
     .select("*")
-    .eq("client_id", id)
+    .eq("creator_id", id)
     .order("Start_Date", { ascending: false })
-    .limit(1) as { data: ClientAnalytics[] | null }
+    .limit(1) as { data: CreatorAnalytics[] | null }
 
   return (
     <CreatorDetailClient
